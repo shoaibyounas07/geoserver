@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> <!-- Specifies the character encoding for the document -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Controls the layout on mobile browsers -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> <!-- Duplicate viewport meta tag with additional properties to prevent scaling -->
+    <title>Document</title> <!-- Sets the title of the document -->
+
+    <!-- Link to Leaflet's CSS for map styling -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+     
+    <!-- Load Leaflet's JavaScript library -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+    <!-- Link to Leaflet-Geosearch's CSS for search box styling -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.css"/>
+
+    <!-- Load Leaflet-Geosearch's JavaScript library -->
+<script src="https://unpkg.com/leaflet-geosearch@latest/dist/bundle.min.js"></script>     <!-- Duplicate script tag -->
+
+    <!-- Load jQuery library for additional JavaScript functionalities -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Load the L.Geoserver.js library for handling Geoserver requests with Leaflet -->
+    <script src="./leaflet-geoserver-request-master/src/L.Geoserver.js"></script>
+
+    <style>
+        body{
+            margin: 0; /* Removes default margin */
+            padding: 0; /* Removes default padding */
+        }
+        html, body, #map {
+            height: 100%; /* Sets the height to cover the entire viewport */
+            width: 100vw; /* Sets the width to cover the entire viewport width */
+            cursor: pointer;
+        }
+        #map{
+            border: 2px solid green; /* Adds a green border around the map */
+        }
+        h1{
+            text-align: center; /* Centers the heading text */
+        }
+        
+    </style>
+</head>
+<body>
+    <h1> Get Capabilities REQUEST </h1> <!-- Displays the heading "WMS WFS REQUEST" centered on the page -->
+    
+    <div id="map"></div> <!-- Container for the map -->
+
+    <!-- Add berrer wms -->
+    <script src="./betterwms.js"></script>
+    <script>
+      
+        // Initialize the map and set its view to the given coordinates with a zoom level of 5
+        const map = L.map('map').setView([30, 70], 5);
+
+        // Add a tile layer from OpenStreetMap to the map
+        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+// Get capabilities request 
+// http://localhost:8080/geoserver/wfs?service=wfs&version=1.1.0&request=GetCapabilities
+
+// Get feature dataset
+
+// http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=DescribeFeatureType
+
+var wfs_Url='http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=Pak_Workspace:pak_adm3&outputFormat=application/json&'
+$.getJSON(wfs_Url).then(res => {
+    console.log(res);
+
+    // Creating a GeoJSON layer
+    var layer = L.geoJson(res, {
+        // Adding popups to each feature
+        onEachFeature: function(f, l) {
+            l.bindPopup(f.properties.NAME_3);  // Corrected to l.bindPopup()
+        }
+    }).addTo(map);  // Adding the layer to the map
+
+    map.fitBounds(layer.getBounds());  // Fitting map to the bounds of the layer
+});
+
+      </script>
+   
+        
+       </body>
+       </html>
